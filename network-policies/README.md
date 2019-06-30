@@ -1,16 +1,8 @@
----
-reviewers:
-- caseydavenport
-- danwinship
-title: Declare Network Policy
-content_template: templates/task
----
-{{% capture overview %}}
+# Network Policies
+
 This document helps you get started using the Kubernetes [NetworkPolicy API](/docs/concepts/services-networking/network-policies/) to declare network policies that govern how pods communicate with each other.
-{{% /capture %}}
 
-{{% capture prerequisites %}}
-
+## Installing a Network Provider
 Make sure you've configured a network provider with network policy support. There are a number of network providers that support NetworkPolicy, including:
 
 * [Calico](/docs/tasks/administer-cluster/network-policy-provider/calico-network-policy/)
@@ -22,9 +14,6 @@ Make sure you've configured a network provider with network policy support. Ther
 {{< note >}}
 The above list is sorted alphabetically by product name, not by recommendation or preference. This example is valid for a Kubernetes cluster using any of these providers.
 {{< /note >}}
-{{% /capture %}}
-
-{{% capture steps %}}
 
 ## Create an `nginx` deployment and expose it via a service
 
@@ -150,6 +139,6 @@ Hit enter for command prompt
 Connecting to nginx (10.100.0.16:80)
 / #
 ```
-{{% /capture %}}
+
 
 
