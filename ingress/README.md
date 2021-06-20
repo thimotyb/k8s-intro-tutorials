@@ -94,6 +94,8 @@ Windows users follow the process described here **[here](https://www.addictiveti
 
 `kubectl apply -f ingress.yaml`
 
+FOR k8s2 before 18, change APIversion to apiVersion: networking.k8s.io/v1beta1
+
 **Step 9:** Take a look
 
 `curl http://moe.info | grep STOOGE`
