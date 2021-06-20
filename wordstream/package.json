@@ -1,0 +1,27 @@
+{
+  "name": "bombardier",
+  "version": "1.0.0",
+  "description": "The purpose of this project is to demonstrate asynchronous message consumption in a high-scale, multi-consumer architecture against a pwdhigh speed message consumer",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "redis",
+    "microservice"
+  ],
+  "author": "Bob Reselman <reselbob@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^3.1.0",
+    "faker": "^4.1.0",
+    "redis": "^2.8.0",
+    "redis-commands": "^1.5.0",
+    "redis-parser": "^3.0.0",
+    "uuid": "^3.3.3"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4"
+  }
+}

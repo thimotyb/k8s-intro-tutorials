@@ -1,0 +1,69 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordstream-producer
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 10%
+  template:
+    metadata:
+      labels:
+        app:  wordstream-producer
+    spec:
+      containers:
+      - name: wordstream-producer
+        image: localhost:5000/wordstream-producer
+        ports:
+        - containerPort: 3000
+        env:
+          - name: REDIS_HOST
+            value: "redis-master"
+          - name: REDIS_PORT
+            value: "6379"
+          - name: REDIS_PWD
+            value: "none"
+      initContainers:
+      - name: init-myservice
+        image: busybox:1.31
+        command: ['sh', '-c', 'until nslookup redis-master; do echo waiting for redis-master; sleep 2; done;']
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordstream-consumer
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 10%
+  template:
+    metadata:
+      labels:
+        app: wordstream-consumer
+    spec:
+      containers:
+        - name: wordstream-consumer
+          image: localhost:5000/wordstream-consumer
+          ports:
+            - containerPort: 3000
+          env:
+            - name: REDIS_HOST
+              value: "redis-master"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_PWD
+              value: "none"
+      initContainers:
+        - name: init-myservice
+          image: busybox:1.31
+          command: ['sh', '-c', 'until nslookup redis-master; do echo waiting for redis-master; sleep 2; done;']
+        - name: init-mydb
+          image: busybox:1.31
+          command: ['sh', '-c', 'until nslookup wordstream-consumer; do echo wordstream-consumer for mydb; sleep 2; done;']
