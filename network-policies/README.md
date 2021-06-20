@@ -14,6 +14,10 @@ Make sure you've configured a network provider with network policy support. Ther
 USE A KATACODA WITH WEAVENET INSTALLED, AVAILABLE AT:
 https://www.katacoda.com/webofmars/scenarios/k8s-users-katacoda-12
 
+Or: install weavenet with
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+
+
 
 {{< note >}}
 The above list is sorted alphabetically by product name, not by recommendation or preference. This example is valid for a Kubernetes cluster using any of these providers.
@@ -25,6 +29,9 @@ To see how Kubernetes network policy works, start off by creating an `nginx` dep
 
 ```console
 kubectl run nginx --image=nginx --replicas=2
+
+kubectl create deployment nginx --image=nginx
+kubectl create deployment nginx --image=nginx
 ```
 ```none
 deployment.apps/nginx created
