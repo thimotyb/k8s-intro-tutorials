@@ -11,6 +11,10 @@ Make sure you've configured a network provider with network policy support. Ther
 * [Romana](/docs/tasks/administer-cluster/network-policy-provider/romana-network-policy/)
 * [Weave Net](/docs/tasks/administer-cluster/network-policy-provider/weave-network-policy/)
 
+USE A KATACODA WITH WEAVENET INSTALLED, AVAILABLE AT:
+https://www.katacoda.com/webofmars/scenarios/k8s-users-katacoda-12
+
+
 {{< note >}}
 The above list is sorted alphabetically by product name, not by recommendation or preference. This example is valid for a Kubernetes cluster using any of these providers.
 {{< /note >}}
