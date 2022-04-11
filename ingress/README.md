@@ -53,6 +53,8 @@ We'll use a Katacoda Minikube Playground as our development and deployment envir
 
 `https://katacoda.com/javajon/courses/kubernetes-fundamentals/minikube`
 
+https://www.katacoda.com/courses/kubernetes/launch-single-node-cluster
+
 **Step 2:** Enable the Minikube Ingress Controller
 
 `minikube addons enable ingress`
