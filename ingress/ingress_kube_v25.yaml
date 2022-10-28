@@ -1,0 +1,44 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: stooges-ingress
+spec:
+#  backend:
+#    serviceName: stooges
+#    servicePort: 80
+  rules:
+    - host: moe.info
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: moe
+              port:
+                number: 3000
+    - host: stooges.info
+      http:
+        paths:
+        - path: /moe
+          pathType: Prefix
+          backend:
+            service:
+              name: moe
+              port:
+                number: 3000
+        - path: /larry
+          pathType: Prefix
+          backend:
+            service:
+              name: larry
+              port:
+                number: 3000
+        - path: /curly
+          pathType: Prefix
+          backend:
+            service:
+              name: curly
+              port:
+                number: 3000
