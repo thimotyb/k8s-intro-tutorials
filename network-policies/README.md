@@ -17,6 +17,8 @@ https://www.katacoda.com/webofmars/scenarios/k8s-users-katacoda-12
 Or: install weavenet with
 kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 
+Or: RESTART MINIKUBE WITH
+minikube start --network-plugin=cni --cni=calico
 
 
 {{< note >}}
