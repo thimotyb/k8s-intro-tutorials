@@ -1,0 +1,32 @@
+curl -L https://istio.io/downloadIstio | sh -
+cd istio-1.15.3
+export PATH=$PWD/bin:$PATH
+istioctl install --set profile=demo -y
+kubectl label namespace default istio-injection=enabled
+
+kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
+kubectl get services
+kubectl get pods
+# Wait for all running 2/2
+# test it started:
+kubectl exec "$(kubectl get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}')" -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
+
+# Install istio gateway
+kubectl apply -f samples/bookinfo/networking/bookinfo-gateway.yaml
+istioctl analyze
+
+# Determine ingress nodeport
+kubectl get svc istio-ingressgateway -n istio-system
+export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
+export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].nodePort}')
+export INGRESS_HOST=$(kubectl get po -l istio=ingressgateway -n istio-system -o jsonpath='{.items[0].status.hostIP}')
+export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
+echo "$GATEWAY_URL"
+
+kubectl get deploy -o wide -n istio-system
+kubectl get svc -o wide -n istio-system
+
+# In killrcoda app will be open on port :30011/productpage (INGRESS PORT ON GATEWAY URL)
+
+# Kiali will be available on port 20001/kiali
+istioctl dashboard kiali --address 0.0.0.0
