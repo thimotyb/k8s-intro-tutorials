@@ -1,0 +1,17 @@
+piVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+    - image: nginx
+      name: nginx
+      securityContext:
+        allowPrivilegeEscalation: false
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop: ["ALL"]
+      ports:
+        - containerPort: 80
