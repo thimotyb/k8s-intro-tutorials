@@ -70,3 +70,6 @@ kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.16/samp
 
 # Kiali will be available on port 20001/kiali
 istioctl dashboard kiali --address 0.0.0.0
+
+# From here all "Tasks" exercises can be performed, e.g.
+# https://istio.io/latest/docs/tasks/traffic-management/traffic-shifting/
