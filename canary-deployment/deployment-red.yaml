@@ -3,6 +3,10 @@ kind: Deployment
 metadata:
   name: deployment-red
 spec:
+  selector:
+    matchLabels:
+      app: example_code
+      color: red
   replicas: 10
   strategy:
     type: RollingUpdate
