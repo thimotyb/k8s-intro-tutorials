@@ -1,0 +1,502 @@
+INSTALL DOCKER ON LOCAL UBUNTU
+Microservices2023!
+sudo apt update
+sudo apt install docker.io
+
+INTRO TO DOCKER
+
+docker --version
+sudo docker container ls -as
+sudo docker image ls
+sudo docker run hello-world
+mkdir example
+cd example
+
+sudo apk update
+sudo apk get nano
+
+nano index.js
+
+var os = require("os");
+var hostname = os.hostname();
+console.log("hello from " + hostname);
+
+nano Dockerfile
+
+FROM alpine
+RUN apk update && apk add nodejs
+COPY . /app
+WORKDIR /app
+CMD ["node","index.js"]
+
+sudo docker image build -t hello:v0.1 .  
+sudo docker image ls
+sudo docker container run hello:v0.1
+
+=======================================================
+
+sudo docker container run ubuntu
+sudo docker image ls
+sudo docker container ls -a
+sudo docker container start 3ee3
+sudo docker container ls -a
+sudo docker container run -ti ubuntu /bin/bash
+cat /etc/issue
+echo "CIAO" >> ciao.txt
+cat ciao.txt
+exit
+sudo docker container ls -a
+sudo docker container start 8ed4
+sudo docker container exec -ti 8ed4 /bin/bash
+ls
+cat ciao.txt
+sudo docker container ls -as
+sudo docker container run -ti ubuntu /bin/bash
+
+echo "TOPOLINO" >> pippo.txt
+exit
+sudo docker container start 2ddf
+sudo docker container exec -ti 2ddf /bin/bash
+ls
+exit
+
+sudo apt install net-tools
+netstat -tan
+
+sudo docker run --name mionginx -d -p 8080:80 nginx
+curl localhost:8080
+netstat -tan
+sudo docker container exec -ti 2f52 /bin/sh
+find / -name index.html
+vi /usr/share/nginx/html/index.html
+echo "CIAOOOO" >> index.html
+
+=======================================================
+
+cd ..
+
+git clone https://github.com/ibnesayeed/linkextractor.git
+git clone https://github.com/ibnesayeed/linkextractor.git
+git checkout demo
+git checkout step0
+git checkout step1
+sudo docker image build -t linkextractor:step1 .
+sudo docker container run --rm linkextractor:step1 http://www.ilmeteo.it
+git checkout step2
+git checkout step3
+sudo docker image build -t linkextractor:step3 .
+sudo docker container run -d -p 5000:5000 --name=linkextractor linkextractor:step3
+sudo docker container ls
+curl localhost:5000/api/http://www.ilmeteo.it
+sudo docker container logs linkextractor
+sudo docker container stop linkextractor
+git checkout step4
+sudo apt install docker-compose
+tmux + (CTRL-B e SHIFT-2) - (CTRL-B e UP/DOWN)
+sudo docker-compose up
+netstat -tan
+sudo docker-compose ps
+sudo docker-compose down
+git checkout step5
+sudo docker-compose up
+sudo docker-compose exec redis redis-cli monitor
+
+======================================================
+
+INSTALL DOCKER AND MINIKUBE ON LOCAL UBUNTU
+
+sudo apt update
+sudo apt install docker.io
+sudo docker --version
+sudo docker run hello-world
+
+https://minikube.sigs.k8s.io/docs/start/
+
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+Install Calico:
+https://projectcalico.docs.tigera.io/getting-started/kubernetes/minikube
+
+# Add current user to docker group
+(sudo minikube delete) # delete previous cluster if necessary
+sudo usermod -aG docker $USER && newgrp docker
+minikube start --network-plugin=cni --cni=calico
+
+kubectl get nodes -o wide
+# Set autocomplete and alias
+source <(kubectl completion bash) # set up autocomplete in bash into the current shell, bash-completion package should be installed first.
+echo "source <(kubectl completion bash)" >> ~/.bashrc # add autocomplete permanently to your bash shell.
+alias k=kubectl
+complete -o default -F __start_kubectl k
+
+=======================================================
+
+===========================
+
+INTRO TO KUBERNETES
+
+kubectl get nodes -o wide
+kubectl get ns
+kubectl get pods
+kubectl get pods -n kube-system
+kubectl get pods -n kube-system -o wide
+git clone https://github.com/thimotyb/k8s-intro-tutorials
+
+kubectl run nginx --image=nginx
+kubectl get pods -o wide
+# From minikube host
+kubectl port-forward pod/nginx 8080:80 &  ## ps -fax | grep port-forward to kill
+
+OPPURE MINKUBE SSH:
+minikube ssh
+curl <podip>
+
+==============================================
+
+cd k8s-intro-tutorials/cli/
+kubectl create -f manifests/mypod.yaml
+kubectl describe pod mypod 
+kubectl delete pod mypod
+kubectl create ns dev
+kubectl get pods -n dev
+kubectl create -f manifests/mypod.yaml -n dev
+kubectl config get-contexts
+# For Minikube: kubectl config set-context devel --cluster=minikube --user=minikube --namespace=dev
+kubectl config set-context devel --cluster=kubernetes --user=kubernetes-admin --namespace=dev
+kubectl config use-context devel
+kubectl get pods -o wide --show-labels
+kubectl edit pod mypod
+vi manifests/mypod.yaml 
+cd
+kubectl logs mypod
+kubectl exec mypod -c nginx -- printenv
+kubectl exec -it mypod -c nginx -- /bin/sh
+cat /etc/issue
+
+
+cd k8s-intro-tutorials/core/
+kubectl create -f manifests/pod-example.yaml
+kubectl create -f manifests/pod-multi-container-example.yaml
+kubectl get pods -o wide --show-labels
+kubectl label pod pod-example app=nginx environment=dev
+kubectl label pod multi-container-example app=nginx environment=prod
+kubectl get pods --selector environment=prod --show-labels
+cat manifests/service-clusterip.yaml
+kubectl create -f manifests/service-clusterip.yaml
+kubectl get pods,svc -o wide --show-labels
+kubectl exec pod-example -- nslookup clusterip.dev.svc.cluster.local
+kubectl exec -it pod-example -- /bin/sh
+curl clusterip
+exit
+cat manifests/service-nodeport.yaml
+kubectl create -f manifests/service-nodeport.yaml
+kubectl get nodes -o wide
+curl 192.168.49.2:32410 | tail -n 3
+cat manifests/service-loadbalancer.yaml
+kubectl create -f manifests/service-loadbalancer.yaml
+
+# Minikube Tunnel: https://minikube.sigs.k8s.io/docs/handbook/accessing/#example-of-nodeport
+kubectl create deployment hello-minikube1 --image=kicbase/echo-server:1.0
+kubectl scale deployment hello-minikube1 --replicas=3
+kubectl expose deployment hello-minikube1 --type=NodePort --port=8080
+kubectl get pods,svc -o wide
+minikube service hello-minikube1 --url -n dev
+curl http://192.168.49.2:31536
+curl $(minikube service hello-minikube1 --url -n dev)
+
+cd k8s-intro-tutorials/workloads/
+cat manifests/rs-example.yaml
+kubectl create -f manifests/rs-example.yaml
+kubectl get pods,rs -o wide --show-labels
+kubectl describe pod rs-example-bngjg | grep "Controlled"
+kubectl scale replicaset rs-example --replicas=5
+kubectl scale replicaset rs-example --replicas=3
+vi manifests/pod-rs-example.yaml
+kubectl delete pod pod-example
+kubectl create -f manifests/pod-rs-example.yaml
+kubectl delete rs rs-example
+cat manifests/deploy-example.yaml
+kubectl create -f manifests/deploy-example.yaml
+kubectl get pods,deployment,rs,svc -o wide --show-labels
+kubectl expose deployment deploy-example
+  minikube ssh
+  sudo apt update
+  sudo apt install telnet
+  telnet 10.106.88.206 80 # ClusterIP address
+  HEAD # Look at nginx version in response header
+  exit
+kubectl set image deployment deploy-example nginx=nginx:1.23.4 --record
+kubectl rollout history deployment deploy-example
+kubectl rollout undo deployment deploy-example
+kubectl rollout undo deployment deploy-example --to-revision 2
+# Jobs and CronJobs
+cat manifests/job-example.yaml
+kubectl create -f manifests/job-example.yaml
+kubectl get pods --show-labels --watch
+kubectl get jobs -o wide
+kubectl logs job-example-95j95ca
+kubectl describe job job-example
+kubectl delete job job-example
+kubectl get pods
+cat manifests/cronjob-example.yaml 
+# replace version from v1beta1 to v1 in manifest to run in newer k8s
+kubectl create -f manifests/cronjob-example.yaml
+kubectl get jobs
+kubectl edit CronJob cronjob-example
+# Put it in suspend True
+kubectl delete cronjob cronjob-example
+
+
+# Update Default Class Storage example for > 1.26 
+cd k8s-intro-tutorials/storage/
+kubectl get sc # show storage class in minikube
+minikube addons list
+
+cat manifests/pv-sc-example.yaml
+cat manifests/pvc-sc-example.yaml
+minikube ssh
+ls /tmp
+exit
+kubectl get pv,pvc -o wide
+cat manifests/pv-selector-example.yaml 
+cat manifests/pvc-selector-example.yaml
+kubectl create -f manifests/pv-sc-example.yaml
+kubectl create -f manifests/pvc-selector-example.yaml # Demonstrate they don't bind as SC missing
+kubectl get pv,pvc -o wide
+kubectl create -f manifests/pv-selector-example.yaml
+kubectl create -f manifests/pvc-sc-example.yaml
+kubectl delete pvc pvc-selector-example
+kubectl delete pvc pvc-sc-example
+kubectl get pv,pvc -o wide
+
+cat manifests/html-vol.yaml 
+kubectl create -f manifests/html-vol.yaml 
+cat manifests/reader.yaml
+kubectl create -f manifests/reader.yaml
+kubectl get pods,svc,rs,deployment,pv,pvc -o wide --show-labels
+ls /tmp
+ls /tmp/html
+cat manifests/writer.yaml 
+kubectl create -f manifests/writer.yaml
+ssh node01
+ls /tmp/html
+tail -f index.html
+kubectl delete pvc pvc-sc-example
+
+# Storage class dinamica
+cat manifests/pvc-standard.yaml
+kubectl create -f manifests/pvc-standard.yaml
+kubectl describe pvc pvc-standard
+kubectl get pv,pvc -o wide
+kubectl delete pvc pvc-standard
+kubectl delete pvc pvc-sc-example
+
+kubectl delete deployment reader
+kubectl delete deployment writer
+kubectl get pods,svc,rs,deployment,pv,pvc -o wide --show-labels
+
+kubectl delete svc reader
+kubectl delete pvc html
+kubectl get pv,pvc -o wide
+
+cd k8s-intro-tutorials/configuration/
+cat manifests/cm-manifest.yaml
+kubectl create -f manifests/cm-manifest.yaml
+kubectl get configmap manifest-example -o yaml
+cat manifests/cm-env-example.yaml
+kubectl create -f manifests/cm-env-example.yaml
+kubectl get jobs -o wide
+kubectl get pods -o wide
+kubectl logs cm-env-example-drrdz
+cat manifests/cm-vol-example.yaml
+kubectl create -f manifests/cm-vol-example.yaml
+kubectl exec cm-vol-example -- ls /myconfig
+kubectl exec -ti cm-vol-example -- /bin/sh
+cat manifests/secret-manifest.yaml
+echo bXlwYXNzd29yZA== | base64 -d
+kubectl create -f manifests/secret-manifest.yaml
+kubectl get secret manifest-example -o yaml
+cat manifests/secret-env-example.yaml
+kubectl create -f manifests/secret-env-example.yaml
+kubectl get pods
+kubectl logs secret-env-example-zqmxh
+
+# Pulizia
+kubectl delete job secret-env-example
+kubectl delete job cm-env-example
+kubectl delete pod cm-vol-example
+
+# Esempio application properties da file
+nano propexample.yaml
+## file propexample.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+ name: mioconfigesempio
+data:
+ application.properties: |
+  pippo=pluto
+  pino=gino
+  dbname=prod
+
+## file cm-vol-example.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cm-vol-example
+spec:
+  containers:
+  - name: mypod
+    image: alpine:latest
+    command: ["/bin/sh", "-c"]
+    args:
+    - while true; do
+      sleep 10;
+      done
+    volumeMounts:
+    - name: config-volume
+      mountPath: /myconfig
+    - name: city
+      mountPath: /mycity
+      readOnly: true
+    - name: props
+      mountPath: /properties  
+  volumes:
+  - name: props
+    configMap:
+      name: mioconfigesempio
+  - name: config-volume
+    configMap:
+      name: manifest-example
+  - name: city
+    configMap:
+      name: manifest-example
+      items:
+      - key: city
+        path: thisismycity
+        
+## comandi riavvio container e verifica funzionamento:
+kubectl delete pod cm-vol-example
+kubectl create -f propexample.yaml 
+kubectl create -f cm-vol-example.yaml
+kubectl exec -ti cm-vol-example -- /bin/sh
+	/ # cat properties/application.properties 
+  
+cd k8s-intro-tutorials/network-policies
+kubectl delete pod multi-container-example # delete old pod if still there
+cat manifests/nginx-policy.yaml
+kubectl create deployment nginx --image=nginx
+kubectl get pods -o wide --show-labels
+# change label in yaml to app: nginx instead of run: nginx
+kubectl expose deployment nginx --port=80
+kubectl run busybox --rm -ti --image=busybox /bin/sh
+wget --spider --timeout=1 nginx
+wget -O - nginx
+exit
+kubectl get pods -n kube-system
+kubectl create -f manifests/nginx-policy.yaml 
+kubectl run busybox --rm -ti --image=busybox /bin/sh
+wget -O - nginx # Timeouts because of policy enforced by Calico
+exit
+kubectl run busybox --rm -ti --labels="access=true" --image=busybox /bin/sh # add the label to be able to access
+wget -O - nginx
+
+kubectl get networkpolicies
+kubectl delete networkpolicies access-nginx
+# https://github.com/controlplaneio/netassertkubectl
+
+------ INGRESS
+git checkout advanced
+cd k8s-intro-tutorials/ingress
+minikube addons list
+minikube addons enable ingress
+kubectl apply -f moe-deployment.yaml
+kubectl apply -f larry-deployment.yaml
+kubectl apply -f curly-deployment.yaml
+kubectl expose deployment moe --target-port=3000 --type=NodePort
+kubectl expose deployment larry --target-port=3000 --type=NodePort
+kubectl expose deployment curly --target-port=3000 --type=NodePort
+# prendere ip servizio curly
+kubectl get svc -o wide 
+minikube ssh
+curl 10.101.108.130:3000 | grep STOOGE # <<- IP preso sopra
+minikube ip
+echo "$(minikube ip) stooges.info moe.info" | sudo tee -a /etc/hosts
+kubectl apply -f ingress_kube_v25.yaml 
+curl http://stooges.info/moe | grep STOOGE
+curl http://stooges.info/larry | grep STOOGE
+curl http://moe.info | grep STOOGE 
+
+--------
+
+# In Minikube certs are in .minikube/certs of user home running minikube (root?)
+cd k8s-intro-tutorials/
+git checkout advanced
+cd rbac
+kubectl config get-contexts
+kubectl auth can-i --list # show current permissions
+kubectl create ns office
+openssl genrsa -out employee.key 2048
+openssl req -new -key employee.key -out employee.csr -subj "/CN=employee/O=acme"
+ls -ltr /etc/kubernetes/pki
+# In Minikube: ls -ltr /home/azureuser/.minikube/
+# sudo openssl x509 -req -in employee.csr -CA /home/Student/.minikube/ca.crt -CAkey /home/Student/.minikube/ca.key -CAcreateserial -out employee.crt -days 500
+# sudo openssl x509 -req -in employee.csr -CA /home/azureuser/.minikube/ca.crt -CAkey /home/azureuser/.minikube/ca.key -CAcreateserial -out employee.crt -days 500
+sudo openssl x509 -req -in employee.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out employee.crt -days 500
+mkdir -p $HOME/.certs && mv employee.crt employee.key $HOME/.certs
+ls $HOME/.certs
+less $HOME/.kube/config
+kubectl config set-credentials employee --client-certificate=$HOME/.certs/employee.crt  --client-key=$HOME/.certs/employee.key
+# kubectl config set-context employee-context --cluster=minikube --namespace=office --user=employee
+kubectl config set-context employee-context --cluster=kubernetes --namespace=office --user=employee
+kubectl config use-context employee-context
+kubectl auth can-i --list
+kubectl get pods # Error: Error from server (Forbidden): pods is forbidden: User "employee" cannot list resource "pods" in API group "" in the namespace "office"
+vi manifests/role-deployment-manager.yaml
+# change package to apiVersion: rbac.authorization.k8s.io/v1
+# In Minikube: kubectl config use-context minikube
+kubectl config use-context kubernetes-admin@kubernetes
+kubectl apply -f manifests/role-deployment-manager.yaml
+vi manifests/rolebinding-deployment-manager.yaml
+kubectl create -f manifests/rolebinding-deployment-manager.yaml 
+kubectl config use-context employee-context
+kubectl auth can-i --list
+kubectl get pods
+kubectl get svc
+
+kubectl run --image nginx acme-nginx
+kubectl get pods -n default
+
+========================
+HPA
+
+kubectl config use-context minikube
+minikube addons list
+minikube addons enable metrics-server
+kubectl get pods -n kube-system # look for metric-server
+# https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+kubectl apply -f https://k8s.io/examples/application/php-apache.yaml
+kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
+kubectl get hpa
+kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://php-apache; done"
+kubectl get hpa php-apache --watch
+kubectl get deployment php-apache
+# type Ctrl+C to end the watch when you're ready
+kubectl get hpa php-apache --watch
+kubectl get deployment php-apache
+
+
+
+
+NGINX ON OPENSHIFT
+https://hub.docker.com/r/twalter/openshift-nginx/
+
+
+
