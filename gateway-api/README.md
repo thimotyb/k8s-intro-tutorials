@@ -20,6 +20,7 @@ Use a recent Minikube/Kubernetes release before you begin. The helper script in 
 
 * [The Manifests](#the-manifests)
 * [Implementing Gateway API](#implementing-gateway-api)
+* [Advanced Traffic Controls](#advanced-traffic-controls)
 * [Cleaning Up](#cleaning-up)
 
 ---
@@ -149,6 +150,62 @@ kubectl get gateway -n gateway-demo -o wide
 kubectl get httproute -n gateway-demo -o wide
 kubectl get pods -n gateway-demo -o wide
 kubectl get svc -n gateway-demo -o wide
+```
+
+## Advanced Traffic Controls
+
+The basic exercise already demonstrates traffic shaping with weighted routing in `manifests/httproute.yaml`.
+This optional extension adds three more Gateway capabilities:
+
+* Local rate limiting
+* Circuit breaking
+* A dedicated traffic-shaping route for a second weighted split demo
+
+Apply the extra resources:
+
+```bash
+kubectl apply -f manifests/advanced/slow-backend.yaml
+kubectl apply -f manifests/advanced/httproutes.yaml
+kubectl apply -f manifests/advanced/policies.yaml
+kubectl rollout status deployment/slow-backend -n gateway-demo
+```
+
+Keep the existing port-forward from Step 6 open, then try the advanced routes.
+
+**Rate limiting**
+
+The `/limited` route allows the first three requests and then returns `429 Too Many Requests`.
+
+```bash
+for i in 1 2 3 4; do curl -i -H "Host: demo.local" http://localhost:8888/limited; echo; done
+```
+
+**Circuit breaking**
+
+The `/slow` route points to a backend that sleeps before responding. The circuit breaker is configured to fail fast
+when that backend is under concurrent load.
+
+```bash
+for i in 1 2 3 4 5; do
+  curl -s -o /dev/null -w "request %{num_connects}: %{http_code}\n" -H "Host: demo.local" http://localhost:8888/slow &
+done
+wait
+```
+
+You should see at least one `200` and some `503` responses.
+
+**Traffic shaping**
+
+The `/shape` route splits requests between `blue` and `green`. Run the request multiple times to see both backends.
+
+```bash
+for i in $(seq 1 20); do curl -s -H "Host: demo.local" http://localhost:8888/shape; echo; done
+```
+
+If you want a fully automated version of these checks, run:
+
+```bash
+bash scripts/test-advanced.sh
 ```
 
 ## Automated Tests

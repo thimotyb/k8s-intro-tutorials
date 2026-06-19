@@ -1,0 +1,35 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: limited-route-ratelimit
+  namespace: gateway-demo
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: limited-route
+  rateLimit:
+    local:
+      rules:
+      - clientSelectors:
+        - path:
+            type: Exact
+            value: /limited
+        limit:
+          requests: 3
+          unit: Minute
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: slow-route-circuitbreaker
+  namespace: gateway-demo
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: slow-route
+  circuitBreaker:
+    maxPendingRequests: 0
+    maxParallelRequests: 1
+
