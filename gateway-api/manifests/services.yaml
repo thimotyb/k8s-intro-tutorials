@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: blue
+  namespace: gateway-demo
+spec:
+  selector:
+    app: blue
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: green
+  namespace: gateway-demo
+spec:
+  selector:
+    app: green
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+

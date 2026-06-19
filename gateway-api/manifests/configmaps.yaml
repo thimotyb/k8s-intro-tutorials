@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: blue-html
+  namespace: gateway-demo
+data:
+  index.html: |
+    <html>
+    <body style="font-family: sans-serif;">
+      <h1>blue backend</h1>
+      <p>This is the stable version.</p>
+    </body>
+    </html>
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: green-html
+  namespace: gateway-demo
+data:
+  index.html: |
+    <html>
+    <body style="font-family: sans-serif;">
+      <h1>green backend</h1>
+      <p>This is the canary version.</p>
+    </body>
+    </html>
+

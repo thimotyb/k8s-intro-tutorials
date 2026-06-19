@@ -29,6 +29,8 @@ Tutorials have been validated against minikube v0.30 running Kubernetes v1.12.x 
 and Volumes themselves.
 * [configuration](/configuration/README.md) - Tutorials going over how to use the two Configuration objects
 ConfigMaps and Secrets.
+* [gateway-api](/gateway-api/README.md) - Gateway API routing with a modern replacement for Ingress, including host
+and path routing plus weighted traffic splitting.
 * [Examples](/examples/README.md) - Examples of full blown applications to explore after the tutorials have been
 completed.
 
