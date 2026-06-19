@@ -41,6 +41,20 @@ The exercise uses the following resources:
 
 This walkthrough assumes you already have `kubectl`, `minikube`, and `helm` available.
 
+If you need to install them first, these commands work on Linux with `amd64` or `arm64`:
+
+```bash
+MINIKUBE_VERSION=v1.35.1
+ARCH=$(uname -m)
+case "$ARCH" in
+  x86_64|amd64) ARCH=amd64 ;;
+  aarch64|arm64) ARCH=arm64 ;;
+esac
+curl -LO "https://storage.googleapis.com/minikube/releases/${MINIKUBE_VERSION}/minikube-linux-${ARCH}"
+sudo install minikube-linux-${ARCH} /usr/local/bin/minikube
+curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+```
+
 If you want a one-command local bootstrap, use the helper script in this folder:
 
 ```bash
@@ -51,7 +65,7 @@ bash scripts/bootstrap-gateway-api.sh
 **Step 1:** Start Minikube with a recent Kubernetes version.
 
 ```bash
-minikube start --kubernetes-version <recent-supported-version>
+minikube start --kubernetes-version v1.35.1
 ```
 
 **Step 2:** Install the Gateway API CRDs and Envoy Gateway controller.
