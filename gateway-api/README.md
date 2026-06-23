@@ -21,6 +21,7 @@ Use a recent Minikube/Kubernetes release before you begin. The helper script in 
 * [The Manifests](#the-manifests)
 * [Implementing Gateway API](#implementing-gateway-api)
 * [Advanced Traffic Controls](#advanced-traffic-controls)
+* [Official Sources](#official-sources)
 * [Cleaning Up](#cleaning-up)
 
 ---
@@ -208,6 +209,24 @@ If you want a fully automated version of these checks, run:
 bash scripts/test-advanced.sh
 ```
 
+## Official Sources
+
+The exercise is based on these official references:
+
+### Basic Exercise
+
+* [Gateway API home](https://gateway-api.sigs.k8s.io/)
+* [Gateway API versioning and support policy](https://gateway-api.sigs.k8s.io/docs/concepts/versioning/)
+* [Envoy Gateway quickstart](https://gateway.envoyproxy.io/docs/tasks/quickstart/)
+* [Envoy Gateway traffic tasks overview](https://gateway.envoyproxy.io/docs/tasks/traffic/)
+
+### Advanced Exercise
+
+* [Envoy Gateway local rate limit](https://gateway.envoyproxy.io/docs/tasks/traffic/local-rate-limit/)
+* [Envoy Gateway rate limiting concept](https://gateway.envoyproxy.io/v1.5/concepts/rate-limiting/)
+* [Envoy Gateway circuit breakers](https://gateway.envoyproxy.io/latest/tasks/traffic/circuit-breaker/)
+* [Envoy Gateway BackendTrafficPolicy](https://gateway.envoyproxy.io/v1.3/concepts/introduction/gateway_api_extensions/backend-traffic-policy/)
+
 ## Automated Tests
 
 The following script launches the verification checks used for this exercise:
@@ -218,6 +237,20 @@ bash scripts/test.sh
 
 It checks that the GatewayClass exists, the Gateway is created, and the routing returns the expected blue and green
 responses, including a weighted split sample.
+
+## Cleanup Script
+
+To remove everything created by this lab, run:
+
+```bash
+bash scripts/cleanup.sh
+```
+
+If you also want to delete the Minikube cluster itself:
+
+```bash
+DELETE_MINIKUBE=true bash scripts/cleanup.sh
+```
 
 ---
 
