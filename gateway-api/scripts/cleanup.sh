@@ -27,6 +27,11 @@ kubectl delete -f "${ROOT_DIR}/manifests/deployments.yaml" --ignore-not-found=tr
 kubectl delete -f "${ROOT_DIR}/manifests/configmaps.yaml" --ignore-not-found=true
 kubectl delete -f "${ROOT_DIR}/manifests/namespace.yaml" --ignore-not-found=true
 
+echo "Removing TLS Gateway API example..."
+kubectl delete -f "${ROOT_DIR}/manifests/tls/httproute.yaml" --ignore-not-found=true
+kubectl delete -f "${ROOT_DIR}/manifests/tls/gateway.yaml" --ignore-not-found=true
+kubectl delete secret demo-tls -n gateway-demo --ignore-not-found=true
+
 echo "Removing Envoy Gateway quickstart and controller..."
 kubectl delete gateway eg -n default --ignore-not-found=true
 kubectl delete httproute backend -n default --ignore-not-found=true

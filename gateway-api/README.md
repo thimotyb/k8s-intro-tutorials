@@ -20,6 +20,7 @@ Use a recent Minikube/Kubernetes release before you begin. The helper script in 
 
 * [The Manifests](#the-manifests)
 * [Implementing Gateway API](#implementing-gateway-api)
+* [TLS and HTTPS](#tls-and-https)
 * [Advanced Traffic Controls](#advanced-traffic-controls)
 * [Official Sources](#official-sources)
 * [Cleaning Up](#cleaning-up)
@@ -36,6 +37,8 @@ The exercise uses the following resources:
 * `manifests/services.yaml` - ClusterIP Services for the deployments
 * `manifests/gateway.yaml` - A Gateway that listens on HTTP port 80
 * `manifests/httproute.yaml` - Host/path routing, URL rewrite, and a weighted split route
+* `manifests/tls/gateway.yaml` - An HTTPS Gateway listener that terminates a self-signed certificate
+* `manifests/tls/httproute.yaml` - A route that serves the blue backend over HTTPS
 
 ---
 
@@ -153,6 +156,61 @@ kubectl get pods -n gateway-demo -o wide
 kubectl get svc -n gateway-demo -o wide
 ```
 
+## TLS and HTTPS
+
+This optional example adds an HTTPS listener to the Gateway and attaches a self-signed certificate from a Kubernetes
+Secret. The route stays simple so you can focus on the TLS wiring rather than the backend behavior.
+
+**Step 1:** Generate a self-signed certificate that matches the HTTPS hostname.
+
+```bash
+mkdir -p /tmp/gateway-api-tls
+openssl req -x509 -newkey rsa:2048 -nodes -days 365 \
+  -keyout /tmp/gateway-api-tls/tls.key \
+  -out /tmp/gateway-api-tls/tls.crt \
+  -subj "/CN=tls.demo.local" \
+  -addext "subjectAltName=DNS:tls.demo.local"
+```
+
+**Step 2:** Create the TLS Secret in the same namespace as the Gateway.
+
+```bash
+kubectl create secret tls demo-tls -n gateway-demo \
+  --cert=/tmp/gateway-api-tls/tls.crt \
+  --key=/tmp/gateway-api-tls/tls.key
+```
+
+**Step 3:** Apply the HTTPS Gateway and route.
+
+```bash
+kubectl apply -f manifests/tls/gateway.yaml
+kubectl apply -f manifests/tls/httproute.yaml
+```
+
+Check that the Gateway accepted the listener.
+
+```bash
+kubectl describe gateway tls-gateway -n gateway-demo
+kubectl get httproute tls-route -n gateway-demo
+```
+
+**Step 4:** Open a second port-forward to the HTTPS listener.
+
+```bash
+export ENVOY_SERVICE=$(kubectl get svc -n envoy-gateway-system --selector=gateway.envoyproxy.io/owning-gateway-namespace=gateway-demo,gateway.envoyproxy.io/owning-gateway-name=tls-gateway -o jsonpath='{.items[0].metadata.name}')
+kubectl -n envoy-gateway-system port-forward service/${ENVOY_SERVICE} 8443:443
+```
+
+**Step 5:** Call the endpoint over HTTPS and trust the self-signed certificate explicitly.
+
+```bash
+curl --cacert /tmp/gateway-api-tls/tls.crt \
+  --resolve tls.demo.local:8443:127.0.0.1 \
+  https://tls.demo.local:8443/
+```
+
+You should see the blue backend response over HTTPS.
+
 ## Advanced Traffic Controls
 
 The basic exercise already demonstrates traffic shaping with weighted routing in `manifests/httproute.yaml`.
@@ -219,6 +277,7 @@ The exercise is based on these official references:
 * [Gateway API versioning and support policy](https://gateway-api.sigs.k8s.io/docs/concepts/versioning/)
 * [Envoy Gateway quickstart](https://gateway.envoyproxy.io/docs/tasks/quickstart/)
 * [Envoy Gateway traffic tasks overview](https://gateway.envoyproxy.io/docs/tasks/traffic/)
+* [Gateway API TLS configuration](https://gateway-api.sigs.k8s.io/guides/tls/)
 
 ### Advanced Exercise
 
@@ -237,6 +296,16 @@ bash scripts/test.sh
 
 It checks that the GatewayClass exists, the Gateway is created, and the routing returns the expected blue and green
 responses, including a weighted split sample.
+
+### TLS Example Cleanup
+
+To remove the HTTPS example only, run:
+
+```bash
+kubectl delete -f manifests/tls/httproute.yaml
+kubectl delete -f manifests/tls/gateway.yaml
+kubectl delete secret demo-tls -n gateway-demo --ignore-not-found=true
+```
 
 ## Cleanup Script
 

@@ -1,0 +1,14 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: tls-route
+  namespace: gateway-demo
+spec:
+  parentRefs:
+  - name: tls-gateway
+  hostnames:
+  - tls.demo.local
+  rules:
+  - backendRefs:
+    - name: blue
+      port: 80
