@@ -2,11 +2,11 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-MINIKUBE_BIN="${ROOT_DIR}/.bin/minikube"
 DELETE_MINIKUBE="${DELETE_MINIKUBE:-false}"
+MINIKUBE_BIN="$(command -v minikube || true)"
 
-if [[ ! -x "${MINIKUBE_BIN}" ]]; then
-  echo "Missing minikube binary at ${MINIKUBE_BIN}. Run scripts/start-minikube.sh first if you want kubectl-driven cleanup." >&2
+if [[ -z "${MINIKUBE_BIN}" ]]; then
+  echo "Missing minikube in PATH. Install it or make sure it is reachable before running cleanup." >&2
   exit 1
 fi
 
